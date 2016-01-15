@@ -2,23 +2,26 @@
 * @Author: zyc
 * @Date:   2016-01-15 14:37:05
 * @Last Modified by:   zyc
-* @Last Modified time: 2016-01-15 16:24:14
+* @Last Modified time: 2016-01-15 18:40:45
 */
 'use strict';
 
 const pg = require('pg');
 
-module.exports = class {
+class DBConnection {
   constructor(conString) {
     this.conString = conString;
   }
+
   get client() {
     return new pg.Client(this.conString);
   }
+
   end(client) {
     if (client) client.end();
     pg.end();
   }
+
   query(queryString, values, client) {
     return new Promise((resolve, reject) => {
       if (client) {
@@ -39,3 +42,5 @@ module.exports = class {
     });
   }
 };
+
+module.exports = DBConnection;

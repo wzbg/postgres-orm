@@ -28,5 +28,6 @@
     "promise"
   ],
   "dependencies": {
+    "pg": "^4.4.3"
   }
 }
