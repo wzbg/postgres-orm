@@ -2,7 +2,7 @@
 * @Author: zyc
 * @Date:   2016-01-15 14:32:12
 * @Last Modified by:   zyc
-* @Last Modified time: 2016-01-16 02:08:43
+* @Last Modified time: 2016-01-16 03:25:54
 */
 'use strict';
 
@@ -44,7 +44,13 @@ class EntityDB {
 
   set definition(definition) {
     if (typeof definition  == 'string') {
-      definition = { name: definition };
+      definition = {
+        name: definition,
+        pkey: {
+          name: 'id',
+          type: 'serial'
+        }
+      };
     }
     assert.ok(definition, 'definition required');
     assert.ok(definition.name, 'definition name required');
@@ -90,6 +96,36 @@ class EntityDB {
       dataTypes.push('updated_at timestamp with time zone');
     }
     return this.db.query(`CREATE TABLE "${this.name}"(${dataTypes.join(',')})`);
+  }
+
+  save(entity) {
+    assert.ok(entity, 'null entity cannot be saved');
+    return entity[this.key] ? this.update(entity) : this.create(entity);
+  }
+
+  create(entity) {
+    assert.ok(entity, 'null entity cannot be created');
+    if (this.pkey && this.pkey.type.toLowerCase() == 'serial') {
+      delete entity[this.key];
+    }
+    const fields = [], params = [], values = [];
+    for (let attr in entity) {
+      fields.push(`"${S(attr).underscore()}"`);
+      params.push('$' + (params.length + 1));
+      values.push(entity[attr]);
+    }
+    return this.db.query(`INSERT INTO "${this.name}"(${fields.join(',')}) VALUES(${params.join(',')})`, values);
+  }
+
+  update(entity) {
+    assert.ok(entity, 'null entity cannot be updated');
+    const params = [], values = [];
+    for (let attr in entity) {
+      if (attr == this.key) continue;
+      params.push(`"${S(attr).underscore()}" = $${params.length + 1}`);
+      values.push(entity[attr]);
+    }
+    return this.db.query(`UPDATE "${this.name}" SET ${params.join(',')} WHERE ${this.key} = ${entity[this.key]}`, values);
   }
 };
 
