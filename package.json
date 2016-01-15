@@ -1,0 +1,32 @@
+{
+  "name": "postgres-orm",
+  "version": "1.0.0",
+  "description": "A Postgres ORM that uses promises",
+  "main": "index.js",
+  "scripts": {
+    "test": "node test"
+  },
+  "author": {
+    "name": "wzbg",
+    "email": "z3530515@gmail.com"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/wzbg/postgres-orm"
+  },
+  "keywords": [
+    "postgresql",
+    "postgres",
+    "postgre",
+    "pg",
+    "database",
+    "rdbms",
+    "orm",
+    "data-mapper",
+    "node",
+    "promise"
+  ],
+  "dependencies": {
+  }
+}
