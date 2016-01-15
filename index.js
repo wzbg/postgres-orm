@@ -2,7 +2,7 @@
 * @Author: zyc
 * @Date:   2016-01-15 14:32:12
 * @Last Modified by:   zyc
-* @Last Modified time: 2016-01-15 22:50:16
+* @Last Modified time: 2016-01-16 02:08:43
 */
 'use strict';
 
@@ -50,6 +50,12 @@ class EntityDB {
     assert.ok(definition.name, 'definition name required');
     this._definition = definition;
     this.name = definition.name;
+    const pkey = this.definition.pkey;
+    if (pkey) {
+      this.pkey = pkey;
+      assert.ok(pkey.name, 'pkey name required');
+      this.key = S(pkey.name).underscore();
+    }
   }
 
   dropTable() {
@@ -58,11 +64,10 @@ class EntityDB {
 
   createTable() {
     const dataTypes = [];
-    const pkey = this.definition.pkey;
+    const pkey = this.pkey;
     if (pkey) {
-      const key = S(pkey.name).underscore();
-      dataTypes.push(`"${key}" ${pkey.type}`);
-      dataTypes.push(`CONSTRAINT ${this.name}_pkey PRIMARY KEY (${key})`);
+      dataTypes.push(`"${this.key}" ${pkey.type}`);
+      dataTypes.push(`CONSTRAINT ${this.name}_pkey PRIMARY KEY (${this.key})`);
     }
     const attributes = this.definition.attributes;
     if (attributes) {
