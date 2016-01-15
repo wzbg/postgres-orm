@@ -2,7 +2,7 @@
 * @Author: zyc
 * @Date:   2016-01-15 14:32:12
 * @Last Modified by:   zyc
-* @Last Modified time: 2016-01-16 03:33:59
+* @Last Modified time: 2016-01-16 03:52:54
 */
 'use strict';
 
@@ -126,7 +126,7 @@ class EntityDB {
     return this.db.query(`INSERT INTO "${this.name}"(${fields.join(',')}) VALUES(${params.join(',')})`, values);
   }
 
-  update(entity) {
+  update(entity, condition) {
     assert.ok(entity, 'null entity cannot be updated');
     const params = [], values = [];
     for (let attr in entity) {
@@ -138,7 +138,17 @@ class EntityDB {
       params.push(`"updated_at" = $${params.length + 1}`);
       values.push(new Date());
     }
-    return this.db.query(`UPDATE "${this.name}" SET ${params.join(',')} WHERE ${this.key} = ${entity[this.key]}`, values);
+    const conditions = [];
+    if (condition) {
+      for (let attr in condition) {
+        conditions.push(`"${S(attr).underscore()}" = $${params.length + 1}`);
+        values.push(condition[attr]);
+      }
+    } else {
+      conditions.push(`${this.key} = $${params.length + 1}`);
+      values.push(entity[this.key]);
+    }
+    return this.db.query(`UPDATE "${this.name}" SET ${params.join(',')} WHERE ${conditions.join(' AND ')}`, values);
   }
 };
 
