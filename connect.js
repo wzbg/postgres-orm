@@ -2,7 +2,7 @@
 * @Author: zyc
 * @Date:   2016-01-15 14:37:05
 * @Last Modified by:   zyc
-* @Last Modified time: 2016-01-15 15:58:32
+* @Last Modified time: 2016-01-15 16:24:14
 */
 'use strict';
 
@@ -23,12 +23,8 @@ module.exports = class {
     return new Promise((resolve, reject) => {
       if (client) {
         client.query(queryString, values, (err, result) => {
-          if(err) {
-            return console.error('error running query', err);
-          }
-          console.log(result.rows[0].theTime);
-          //output: Tue Jan 15 2013 19:12:47 GMT-600 (CST) 
-          client.end();
+          if (err) return reject(err);
+          resolve(result);
         });
       } else {
         pg.connect(this.conString, (err, client, done) => {
