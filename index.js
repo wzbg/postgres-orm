@@ -2,7 +2,7 @@
 * @Author: zyc
 * @Date:   2016-01-15 14:32:12
 * @Last Modified by:   zyc
-* @Last Modified time: 2016-01-16 03:25:54
+* @Last Modified time: 2016-01-16 03:33:59
 */
 'use strict';
 
@@ -56,6 +56,7 @@ class EntityDB {
     assert.ok(definition.name, 'definition name required');
     this._definition = definition;
     this.name = definition.name;
+    this.timestamps = definition.timestamps;
     const pkey = this.definition.pkey;
     if (pkey) {
       this.pkey = pkey;
@@ -91,7 +92,7 @@ class EntityDB {
         dataTypes.push(dataTyp);
       }
     }
-    if (this.definition.timestamps) {
+    if (this.timestamps) {
       dataTypes.push('created_at timestamp with time zone');
       dataTypes.push('updated_at timestamp with time zone');
     }
@@ -114,6 +115,14 @@ class EntityDB {
       params.push('$' + (params.length + 1));
       values.push(entity[attr]);
     }
+    if (this.timestamps) {
+      fields.push(`"created_at"`);
+      params.push('$' + (params.length + 1));
+      values.push(new Date());
+      fields.push(`"updated_at"`);
+      params.push('$' + (params.length + 1));
+      values.push(new Date());
+    }
     return this.db.query(`INSERT INTO "${this.name}"(${fields.join(',')}) VALUES(${params.join(',')})`, values);
   }
 
@@ -124,6 +133,10 @@ class EntityDB {
       if (attr == this.key) continue;
       params.push(`"${S(attr).underscore()}" = $${params.length + 1}`);
       values.push(entity[attr]);
+    }
+    if (this.timestamps) {
+      params.push(`"updated_at" = $${params.length + 1}`);
+      values.push(new Date());
     }
     return this.db.query(`UPDATE "${this.name}" SET ${params.join(',')} WHERE ${this.key} = ${entity[this.key]}`, values);
   }
