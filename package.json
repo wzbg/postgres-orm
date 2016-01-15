@@ -4,7 +4,7 @@
   "description": "A Postgres ORM that uses promises",
   "main": "index.js",
   "scripts": {
-    "test": "node test"
+    "test": "node --harmony_destructuring test"
   },
   "author": {
     "name": "wzbg",
