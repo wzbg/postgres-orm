@@ -2,7 +2,7 @@
 * @Author: zyc
 * @Date:   2016-01-15 21:20:44
 * @Last Modified by:   zyc
-* @Last Modified time: 2016-01-16 04:57:40
+* @Last Modified time: 2016-01-16 15:57:01
 */
 'use strict';
 
@@ -54,9 +54,13 @@ const User = ORM.define({
 
 // User.update({ lastName: 'wq' }, { firstName: 'yc' }).then(res => console.log(res)).catch(err => console.error(err));
 
-User.list({
-  filter: { firstName: 'yc', lastName: 'wq' },
-  sort: { id: 'desc', updatedAt: 'asc' },
-  offset: 1,
-  limit: 2
-}).then(res => console.log(res)).catch(err => console.error(err));
+// User.load(3).then(res => console.log(res)).catch(err => console.error(err));
+
+User.load({ firstName: 'wq' }).then(res => console.log(res)).catch(err => console.error(err));
+
+// User.list({
+//   filter: { firstName: 'yc', lastName: 'wq' },
+//   sort: { id: 'desc', updatedAt: 'asc' },
+//   offset: 1,
+//   limit: 2
+// }).then(res => console.log(res)).catch(err => console.error(err));

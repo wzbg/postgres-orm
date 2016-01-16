@@ -2,7 +2,7 @@
 * @Author: zyc
 * @Date:   2016-01-15 14:32:12
 * @Last Modified by:   zyc
-* @Last Modified time: 2016-01-16 05:02:37
+* @Last Modified time: 2016-01-16 15:56:44
 */
 'use strict';
 
@@ -154,7 +154,13 @@ class EntityDB {
   }
 
   load(entity) {
-    return this.db.query(queryString, values);
+    if (typeof entity  != 'object') {
+      entity = { id: entity };
+    }
+    return new Promise((resolve, reject) => this.list({ filter: entity })
+      .then(res => resolve(res.length ? res[0] : {}))
+      .catch(err => err => reject(err))
+    );
   }
 
   list(query) {
@@ -163,7 +169,6 @@ class EntityDB {
     if (query) {
       const { filter, sort, offset, limit } = query;
       for (let attr in filter) {
-        if (attr == this.key) continue;
         values.push(filter[attr]);
         params.push(`"${S(attr).underscore()}" = $${values.length}`);
       }
@@ -194,8 +199,13 @@ class EntityDB {
     }
     return new Promise((resolve, reject) =>
       this.db.query(queryString, values)
-        .then(res => resolve(res.rows))
-        .catch(err => reject(err))
+        .then(res => resolve(res.rows.map(row => {
+          const entity = {};
+          for (let attr in row) {
+            entity[S(attr).camelize()] = row[attr];
+          }
+          return entity;
+        }))).catch(err => reject(err))
     );
   }
 };
