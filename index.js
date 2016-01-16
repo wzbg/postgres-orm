@@ -2,7 +2,7 @@
 * @Author: zyc
 * @Date:   2016-01-15 14:32:12
 * @Last Modified by:   zyc
-* @Last Modified time: 2016-01-17 03:22:47
+* @Last Modified time: 2016-01-17 03:53:11
 */
 'use strict';
 
@@ -156,11 +156,11 @@ class EntityDB {
       .catch(err => reject(err)));
   }
 
-  load(entity) {
+  load(entity, attrs) {
     if (typeof entity  != 'object') {
       entity = { id: entity };
     }
-    return new Promise((resolve, reject) => this.list({ filter: entity })
+    return new Promise((resolve, reject) => this.list({ filter: entity, attrs })
       .then(res => resolve(res.length ? res[0] : {}))
       .catch(err => err => reject(err))
     );
@@ -168,9 +168,17 @@ class EntityDB {
 
   list(query) {
     let queryString = `SELECT * FROM "${this.name}"`;
-    const params = [], values = [];
+    const fields = [], params = [], values = [];
     if (query) {
-      const { filter, sort, offset, limit } = query;
+      const { filter, attrs, sort, offset, limit } = query;
+      if (attrs) {
+        for (let attr of attrs) {
+          fields.push(`"${S(attr).underscore()}"`);
+        }
+      }
+      if (fields.length) {
+        queryString = `SELECT ${fields.join(',')} FROM "${this.name}"`;
+      }
       for (let attr in filter) {
         values.push(filter[attr]);
         params.push(`"${S(attr).underscore()}" = $${values.length}`);
