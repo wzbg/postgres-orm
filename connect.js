@@ -2,7 +2,7 @@
 * @Author: zyc
 * @Date:   2016-01-15 14:37:05
 * @Last Modified by:   zyc
-* @Last Modified time: 2016-01-16 03:15:58
+* @Last Modified time: 2016-01-16 18:11:49
 */
 'use strict';
 
@@ -27,7 +27,7 @@ class DBConnection {
       if (client) {
         client.query(queryString, values, (err, result) => {
           if (err) return reject({queryString, values, err});
-          resolve(result);
+          resolve(result.rows.length ? result.rows : result.rowCount);
         });
       } else {
         pg.connect(this.conString, (err, client, done) => {
@@ -35,7 +35,7 @@ class DBConnection {
           client.query(queryString, values, (err, result) => {
             done();
             if (err) return reject({queryString, values, err});
-            resolve(result);
+            resolve(result.rows.length ? result.rows : result.rowCount);
           });
         });
       }

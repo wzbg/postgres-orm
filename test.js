@@ -2,7 +2,7 @@
 * @Author: zyc
 * @Date:   2016-01-15 21:20:44
 * @Last Modified by:   zyc
-* @Last Modified time: 2016-01-16 15:57:01
+* @Last Modified time: 2016-01-16 18:11:14
 */
 'use strict';
 
@@ -50,13 +50,13 @@ const User = ORM.define({
 
 // User.create({ firstName: 'yc' }).then(res => console.log(res)).catch(err => console.error(err));
 
-// User.update({ id: 2, lastName: 'wq' }).then(res => console.log(res)).catch(err => console.error(err));
+// User.update({ id: 7, lastName: 'wq' }).then(res => console.log(res)).catch(err => console.error(err));
 
 // User.update({ lastName: 'wq' }, { firstName: 'yc' }).then(res => console.log(res)).catch(err => console.error(err));
 
-// User.load(3).then(res => console.log(res)).catch(err => console.error(err));
+// User.load(2).then(res => console.log(res)).catch(err => console.error(err));
 
-User.load({ firstName: 'wq' }).then(res => console.log(res)).catch(err => console.error(err));
+// User.load({ firstName: 'yc' }).then(res => console.log(res)).catch(err => console.error(err));
 
 // User.list({
 //   filter: { firstName: 'yc', lastName: 'wq' },
@@ -64,3 +64,7 @@ User.load({ firstName: 'wq' }).then(res => console.log(res)).catch(err => consol
 //   offset: 1,
 //   limit: 2
 // }).then(res => console.log(res)).catch(err => console.error(err));
+
+// User.count({ firstName: 'yc', lastName: 'wq' }).then(res => console.log(res)).catch(err => console.error(err));
+
+// User.delete().then(res => console.log(res)).catch(err => console.error(err));

@@ -2,7 +2,7 @@
 * @Author: zyc
 * @Date:   2016-01-15 14:32:12
 * @Last Modified by:   zyc
-* @Last Modified time: 2016-01-16 15:56:44
+* @Last Modified time: 2016-01-16 18:07:56
 */
 'use strict';
 
@@ -199,14 +199,41 @@ class EntityDB {
     }
     return new Promise((resolve, reject) =>
       this.db.query(queryString, values)
-        .then(res => resolve(res.rows.map(row => {
+        .then(res => resolve(res ? res.map(row => {
           const entity = {};
           for (let attr in row) {
             entity[S(attr).camelize()] = row[attr];
           }
           return entity;
-        }))).catch(err => reject(err))
+        }) : [])).catch(err => reject(err))
     );
+  }
+
+  count(entity) {
+    let queryString = `SELECT COUNT(*) FROM "${this.name}"`;
+    const params = [], values = [];
+    for (let attr in entity) {
+      values.push(entity[attr]);
+      params.push(`"${S(attr).underscore()}" = $${values.length}`);
+    }
+    if (params.length) {
+      queryString += ` WHERE ${params.join(' AND ')}`;
+    }
+    return new Promise((resolve, reject) => this.db.query(queryString, values)
+      .then(res => resolve(res[0].count)).catch(err => reject(err)));
+  }
+
+  delete(entity) {
+    let queryString = `DELETE FROM "${this.name}"`;
+    const params = [], values = [];
+    for (let attr in entity) {
+      values.push(entity[attr]);
+      params.push(`"${S(attr).underscore()}" = $${values.length}`);
+    }
+    if (params.length) {
+      queryString += ` WHERE ${params.join(' AND ')}`;
+    }
+    return this.db.query(queryString, values);
   }
 };
 
