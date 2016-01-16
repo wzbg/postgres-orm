@@ -2,7 +2,7 @@
 * @Author: zyc
 * @Date:   2016-01-15 14:32:12
 * @Last Modified by:   zyc
-* @Last Modified time: 2016-01-16 18:07:56
+* @Last Modified time: 2016-01-17 03:22:47
 */
 'use strict';
 
@@ -123,8 +123,9 @@ class EntityDB {
       values.push(new Date());
       params.push(`$${values.length}`);
     }
-    const queryString = `INSERT INTO "${this.name}"(${fields.join(',')}) VALUES(${params.join(',')})`;
-    return this.db.query(queryString, values);
+    const queryString = `INSERT INTO "${this.name}"(${fields.join(',')}) VALUES(${params.join(',')}) RETURNING id`;
+    return new Promise((resolve, reject) => this.db.query(queryString, values)
+      .then(res => resolve(res[0].id)).catch(err => reject(err)));
   }
 
   update(entity, condition) {
@@ -149,8 +150,10 @@ class EntityDB {
       values.push(entity[this.key]);
       conditions.push(`${this.key} = $${values.length}`);
     }
-    const queryString = `UPDATE "${this.name}" SET ${params.join(',')} WHERE ${conditions.join(' AND ')}`;
-    return this.db.query(queryString, values);
+    const queryString = `UPDATE "${this.name}" SET ${params.join(',')} WHERE ${conditions.join(' AND ')} RETURNING *`;
+    return new Promise((resolve, reject) => this.db.query(queryString, values)
+      .then(res => resolve(this.dbToJS(condition ? res : res[0])))
+      .catch(err => reject(err)));
   }
 
   load(entity) {
@@ -197,16 +200,8 @@ class EntityDB {
         queryString += ` LIMIT $${values.length}`;
       }
     }
-    return new Promise((resolve, reject) =>
-      this.db.query(queryString, values)
-        .then(res => resolve(res ? res.map(row => {
-          const entity = {};
-          for (let attr in row) {
-            entity[S(attr).camelize()] = row[attr];
-          }
-          return entity;
-        }) : [])).catch(err => reject(err))
-    );
+    return new Promise((resolve, reject) => this.db.query(queryString, values)
+      .then(res => resolve(this.dbToJS(res))).catch(err => reject(err)));
   }
 
   count(entity) {
@@ -234,6 +229,18 @@ class EntityDB {
       queryString += ` WHERE ${params.join(' AND ')}`;
     }
     return this.db.query(queryString, values);
+  }
+
+  dbToJS(dbEntity) {
+    if (!dbEntity) return;
+    if (dbEntity instanceof Array) {
+      return dbEntity.map(entity => this.dbToJS(entity));
+    }
+    const jsEntity = {};
+    for (let attr in dbEntity) {
+      jsEntity[S(attr).camelize()] = dbEntity[attr];
+    }
+    return jsEntity;
   }
 };
 
