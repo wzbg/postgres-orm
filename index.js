@@ -2,7 +2,7 @@
 * @Author: zyc
 * @Date:   2016-01-15 14:32:12
 * @Last Modified by:   zyc
-* @Last Modified time: 2016-01-17 03:53:11
+* @Last Modified time: 2016-01-17 18:32:56
 */
 'use strict';
 
@@ -180,8 +180,19 @@ class EntityDB {
         queryString = `SELECT ${fields.join(',')} FROM "${this.name}"`;
       }
       for (let attr in filter) {
-        values.push(filter[attr]);
-        params.push(`"${S(attr).underscore()}" = $${values.length}`);
+        let condition = filter[attr];
+        if (typeof condition == 'string') {
+          condition =  { opr: '=', value: condition }
+        }
+        let value;
+        switch(condition.opr.toUpperCase()) {
+          case 'IN': value = `(${condition.value.join(',')})`; break;
+          case 'BETWEEN': value = `${condition.from} AND ${condition.to}`; break;
+          default:
+            values.push(condition.value);
+            value = `$${values.length}`;
+        }
+        params.push(`"${S(attr).underscore()}" ${condition.opr} ${value}`);
       }
       if (params.length) {
         queryString += ` WHERE ${params.join(' AND ')}`;
