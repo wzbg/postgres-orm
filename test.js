@@ -2,7 +2,7 @@
 * @Author: zyc
 * @Date:   2016-01-15 21:20:44
 * @Last Modified by:   zyc
-* @Last Modified time: 2016-01-17 21:10:49
+* @Last Modified time: 2016-01-17 21:44:07
 */
 'use strict';
 
@@ -58,13 +58,13 @@ const User = ORM.define({
 
 // User.load({ firstName: 'yc' }).then(res => console.log(res)).catch(err => console.error(err));
 
-// User.list({
-//   filter: { firstName: 'yc', lastName: { opr: 'LIKE', value: 'wq' }, age: { opr: 'BETWEEN', from: 17, to: 19 } },
-//   attrs: ['id', 'firstName', 'lastName'],
-//   sort: { id: 'desc', updatedAt: 'asc' },
-//   offset: 1,
-//   limit: 2
-// }).then(res => console.log(res)).catch(err => console.error(err));
+User.list({
+  filter: { firstName: 'yc', lastName: { opr: 'LIKE', value: 'wq' }, age: { opr: 'BETWEEN', from: 17, to: 19 } },
+  attrs: ['id', 'firstName', 'lastName'],
+  sort: { id: 'desc', updatedAt: 'asc' },
+  offset: 1,
+  limit: 2
+}).then(res => console.log(res)).catch(err => console.error(err));
 
 // User.count({ firstName: 'yc', lastName: 'wq' }).then(res => console.log(res)).catch(err => console.error(err));
 

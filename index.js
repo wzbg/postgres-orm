@@ -2,7 +2,7 @@
 * @Author: zyc
 * @Date:   2016-01-15 14:32:12
 * @Last Modified by:   zyc
-* @Last Modified time: 2016-01-17 21:10:17
+* @Last Modified time: 2016-01-17 21:43:41
 */
 'use strict';
 
@@ -185,7 +185,7 @@ class EntityDB {
 
   list(query) {
     let queryString = `SELECT * FROM "${this.name}"`;
-    const fields = [], params = [], values = [];
+    const fields = [], values = [];
     if (query) {
       const { filter, attrs, sort, offset, limit } = query;
       if (attrs) {
@@ -196,34 +196,7 @@ class EntityDB {
       if (fields.length) {
         queryString = `SELECT ${fields.join(',')} FROM "${this.name}"`;
       }
-      for (let attr in filter) {
-        let condition = filter[attr];
-        if (typeof condition == 'string') {
-          condition =  { opr: '=', value: condition }
-        }
-        let value;
-        switch(condition.opr.toUpperCase()) {
-          case 'IN':
-            condition.value = condition.value.map(value => {
-              values.push(value);
-              return `$${values.length}`;
-            });
-            value = `(${condition.value.join(',')})`;
-            break;
-          case 'BETWEEN':
-            value = `$${values.length + 1} AND $${values.length + 2}`;
-            values.push(condition.from);
-            values.push(condition.to);
-            break;
-          default:
-            values.push(condition.value);
-            value = `$${values.length}`;
-        }
-        params.push(`"${S(attr).underscore()}" ${condition.opr} ${value}`);
-      }
-      if (params.length) {
-        queryString += ` WHERE ${params.join(' AND ')}`;
-      }
+      queryString += this.where(filter, values);
       if(sort) {
         let sorts = [];
         for(let attr in sort) {
@@ -287,6 +260,36 @@ class EntityDB {
       jsEntity[S(attr).camelize()] = dbEntity[attr];
     }
     return jsEntity;
+  }
+
+  where(filter, values) {
+    const params = [];
+    for (let attr in filter) {
+      let condition = filter[attr];
+      if (typeof condition == 'string') {
+        condition =  { opr: '=', value: condition }
+      }
+      let value;
+      switch(condition.opr.toUpperCase()) {
+        case 'IN':
+          condition.value = condition.value.map(value => {
+            values.push(value);
+            return `$${values.length}`;
+          });
+          value = `(${condition.value.join(',')})`;
+          break;
+        case 'BETWEEN':
+          value = `$${values.length + 1} AND $${values.length + 2}`;
+          values.push(condition.from);
+          values.push(condition.to);
+          break;
+        default:
+          values.push(condition.value);
+          value = `$${values.length}`;
+      }
+      params.push(`"${S(attr).underscore()}" ${condition.opr} ${value}`);
+    }
+    return params.length ? ' WHERE' + params.join(' AND ') : '';
   }
 };
 
