@@ -2,7 +2,7 @@
 * @Author: zyc
 * @Date:   2016-01-15 21:20:44
 * @Last Modified by:   zyc
-* @Last Modified time: 2016-01-17 21:47:33
+* @Last Modified time: 2016-01-17 23:55:35
 */
 'use strict';
 
@@ -52,7 +52,7 @@ const User = ORM.define({
 
 // User.update({ id: 7, lastName: 'wq' }, ['lastName']).then(res => console.log(res)).catch(err => console.error(err));
 
-// User.update({ age: 18 }, { firstName: 'yc' }, ['id', 'lastName']).then(res => console.log(res)).catch(err => console.error(err));
+// User.update({ age: 18 }, { firstName: 'yc' }, ['id', 'age']).then(res => console.log(res)).catch(err => console.error(err));
 
 // User.load(2, ['firstName', 'lastName']).then(res => console.log(res)).catch(err => console.error(err));
 
@@ -66,6 +66,6 @@ const User = ORM.define({
 //   limit: 2
 // }).then(res => console.log(res)).catch(err => console.error(err));
 
-User.count({ firstName: 'yc', lastName: 'wq' }).then(res => console.log(res)).catch(err => console.error(err));
+// User.count({ firstName: 'yc', lastName: 'wq' }).then(res => console.log(res)).catch(err => console.error(err));
 
 // User.delete().then(res => console.log(res)).catch(err => console.error(err));

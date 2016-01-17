@@ -2,7 +2,7 @@
 * @Author: zyc
 * @Date:   2016-01-15 14:32:12
 * @Last Modified by:   zyc
-* @Last Modified time: 2016-01-17 21:50:32
+* @Last Modified time: 2016-01-17 23:55:21
 */
 'use strict';
 
@@ -151,15 +151,9 @@ class EntityDB {
       values.push(new Date());
       params.push(`"updated_at" = $${values.length}`);
     }
-    const conditions = [];
-    if (condition) {
-      for (let attr in condition) {
-        values.push(condition[attr]);
-        conditions.push(`"${S(attr).underscore()}" = $${values.length}`);
-      }
-    } else {
-      values.push(entity[this.key]);
-      conditions.push(`${this.key} = $${values.length}`);
+    if (!condition) {
+      condition = {};
+      condition[this.key] = entity[this.key];
     }
     if (attrs) {
       for (let attr of attrs) {
@@ -167,7 +161,7 @@ class EntityDB {
       }
     }
     const returning = fields.length ? fields.join(',') : '*';
-    const queryString = `UPDATE "${this.name}" SET ${params.join(',')} WHERE ${conditions.join(' AND ')} RETURNING ${returning}`;
+    const queryString = `UPDATE "${this.name}" SET ${params.join(',')} ${this.where(condition, values)} RETURNING ${returning}`;
     return new Promise((resolve, reject) => this.db.query(queryString, values)
       .then(res => resolve(this.dbToJS(condition ? res : res[0])))
       .catch(err => reject(err)));
@@ -252,7 +246,7 @@ class EntityDB {
     const params = [];
     for (let attr in filter) {
       let condition = filter[attr];
-      if (typeof condition == 'string') {
+      if (typeof condition != 'object') {
         condition =  { opr: '=', value: condition }
       }
       let value;
