@@ -2,7 +2,7 @@
 * @Author: zyc
 * @Date:   2016-01-15 14:32:12
 * @Last Modified by:   zyc
-* @Last Modified time: 2016-01-17 19:33:52
+* @Last Modified time: 2016-01-17 19:57:48
 */
 'use strict';
 
@@ -128,9 +128,13 @@ class EntityDB {
       .then(res => resolve(res[0].id)).catch(err => reject(err)));
   }
 
-  update(entity, condition) {
+  update(entity, condition, attrs) {
     assert.ok(entity, 'null entity cannot be updated');
-    const params = [], values = [];
+    if (condition instanceof Array) {
+      attrs = condition;
+      condition = null;
+    }
+    const fields = [], params = [], values = [];
     for (let attr in entity) {
       if (attr == this.key) continue;
       values.push(entity[attr]);
@@ -150,7 +154,13 @@ class EntityDB {
       values.push(entity[this.key]);
       conditions.push(`${this.key} = $${values.length}`);
     }
-    const queryString = `UPDATE "${this.name}" SET ${params.join(',')} WHERE ${conditions.join(' AND ')} RETURNING *`;
+    if (attrs) {
+      for (let attr of attrs) {
+        fields.push(`"${S(attr).underscore()}"`);
+      }
+    }
+    const returning = fields.length ? fields.join(',') : '*';
+    const queryString = `UPDATE "${this.name}" SET ${params.join(',')} WHERE ${conditions.join(' AND ')} RETURNING ${returning}`;
     return new Promise((resolve, reject) => this.db.query(queryString, values)
       .then(res => resolve(this.dbToJS(condition ? res : res[0])))
       .catch(err => reject(err)));
