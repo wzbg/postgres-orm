@@ -2,7 +2,7 @@
 * @Author: zyc
 * @Date:   2016-01-15 14:32:12
 * @Last Modified by:   zyc
-* @Last Modified time: 2016-01-17 18:32:56
+* @Last Modified time: 2016-01-17 19:33:52
 */
 'use strict';
 
@@ -186,8 +186,18 @@ class EntityDB {
         }
         let value;
         switch(condition.opr.toUpperCase()) {
-          case 'IN': value = `(${condition.value.join(',')})`; break;
-          case 'BETWEEN': value = `${condition.from} AND ${condition.to}`; break;
+          case 'IN':
+            condition.value = condition.value.map(value => {
+              values.push(value);
+              return `$${values.length}`;
+            });
+            value = `(${condition.value.join(',')})`;
+            break;
+          case 'BETWEEN':
+            value = `$${values.length + 1} AND $${values.length + 2}`;
+            values.push(condition.from);
+            values.push(condition.to);
+            break;
           default:
             values.push(condition.value);
             value = `$${values.length}`;
