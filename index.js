@@ -2,7 +2,7 @@
 * @Author: zyc
 * @Date:   2016-01-15 14:32:12
 * @Last Modified by:   zyc
-* @Last Modified time: 2016-01-17 19:57:48
+* @Last Modified time: 2016-01-17 21:10:17
 */
 'use strict';
 
@@ -99,12 +99,12 @@ class EntityDB {
     return this.db.query(`CREATE TABLE "${this.name}"(${dataTypes.join(',')})`);
   }
 
-  save(entity) {
+  save(entity, attrs) {
     assert.ok(entity, 'null entity cannot be saved');
     return entity[this.key] ? this.update(entity) : this.create(entity);
   }
 
-  create(entity) {
+  create(entity, attrs) {
     assert.ok(entity, 'null entity cannot be created');
     if (this.pkey && this.pkey.type.toLowerCase() == 'serial') {
       delete entity[this.key];
@@ -123,9 +123,16 @@ class EntityDB {
       values.push(new Date());
       params.push(`$${values.length}`);
     }
-    const queryString = `INSERT INTO "${this.name}"(${fields.join(',')}) VALUES(${params.join(',')}) RETURNING id`;
+    const returns = [];
+    if (attrs) {
+      for (let attr of attrs) {
+        returns.push(`"${S(attr).underscore()}"`);
+      }
+    }
+    const returning = returns.length ? returns.join(',') : 'id';
+    const queryString = `INSERT INTO "${this.name}"(${fields.join(',')}) VALUES(${params.join(',')}) RETURNING ${returning}`;
     return new Promise((resolve, reject) => this.db.query(queryString, values)
-      .then(res => resolve(res[0].id)).catch(err => reject(err)));
+      .then(res => resolve(res[0])).catch(err => reject(err)));
   }
 
   update(entity, condition, attrs) {

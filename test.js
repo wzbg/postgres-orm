@@ -2,7 +2,7 @@
 * @Author: zyc
 * @Date:   2016-01-15 21:20:44
 * @Last Modified by:   zyc
-* @Last Modified time: 2016-01-17 19:59:02
+* @Last Modified time: 2016-01-17 21:10:49
 */
 'use strict';
 
@@ -48,7 +48,7 @@ const User = ORM.define({
 
 // User.createTable().then(res => console.log(res)).catch(err => console.error(err));
 
-// User.create({ firstName: 'yc' }).then(res => console.log(res)).catch(err => console.error(err));
+// User.create({ firstName: 'yc' }, ['id', 'firstName']).then(res => console.log(res)).catch(err => console.error(err));
 
 // User.update({ id: 7, lastName: 'wq' }, ['lastName']).then(res => console.log(res)).catch(err => console.error(err));
 
