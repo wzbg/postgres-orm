@@ -2,7 +2,7 @@
 * @Author: zyc
 * @Date:   2016-01-15 14:32:12
 * @Last Modified by:   zyc
-* @Last Modified time: 2016-01-20 01:28:31
+* @Last Modified time: 2016-01-20 01:47:14
 */
 'use strict';
 
@@ -181,14 +181,15 @@ class EntityDB {
     let queryString = `SELECT * FROM "${this.name}"`;
     const fields = [], values = [];
     if (query) {
-      const { filter, attrs, sort, offset, limit } = query;
+      const { filter, attrs, sort, distinct, offset, limit } = query;
       if (attrs) {
         for (let attr of attrs) {
           fields.push(`"${S(attr).underscore()}"`);
         }
       }
       if (fields.length) {
-        queryString = `SELECT ${fields.join(',')} FROM "${this.name}"`;
+        const DISTINCT = distinct ? 'DISTINCT' : ''; 
+        queryString = `SELECT ${DISTINCT} ${fields.join(',')} FROM "${this.name}"`;
       }
       queryString += this.where(filter, values);
       if(sort) {
