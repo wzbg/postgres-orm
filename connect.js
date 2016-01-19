@@ -2,7 +2,7 @@
 * @Author: zyc
 * @Date:   2016-01-15 14:37:05
 * @Last Modified by:   zyc
-* @Last Modified time: 2016-01-16 18:11:49
+* @Last Modified time: 2016-01-20 01:22:46
 */
 'use strict';
 
@@ -23,6 +23,7 @@ class DBConnection {
   }
 
   query(queryString, values, client) {
+    console.log(queryString, values);
     return new Promise((resolve, reject) => {
       if (client) {
         client.query(queryString, values, (err, result) => {

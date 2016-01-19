@@ -2,7 +2,7 @@
 * @Author: zyc
 * @Date:   2016-01-15 14:32:12
 * @Last Modified by:   zyc
-* @Last Modified time: 2016-01-17 23:55:21
+* @Last Modified time: 2016-01-20 01:28:31
 */
 'use strict';
 
@@ -194,7 +194,7 @@ class EntityDB {
       if(sort) {
         let sorts = [];
         for(let attr in sort) {
-          let sortStmt = ` "${S(attr).underscore()}"`;
+          let sortStmt = `"${S(attr).underscore()}"`;
           if(sort[attr] && sort[attr].toLowerCase() == 'desc') {
             sortStmt += ' DESC';
           }
@@ -249,7 +249,7 @@ class EntityDB {
       if (typeof condition != 'object') {
         condition =  { opr: '=', value: condition }
       }
-      let value;
+      let value = '';
       switch(condition.opr.toUpperCase()) {
         case 'IN':
           condition.value = condition.value.map(value => {
@@ -264,12 +264,14 @@ class EntityDB {
           values.push(condition.to);
           break;
         default:
-          values.push(condition.value);
-          value = `$${values.length}`;
+          if (condition.value) {
+            values.push(condition.value);
+            value = `$${values.length}`;
+          }
       }
       params.push(`"${S(attr).underscore()}" ${condition.opr} ${value}`);
     }
-    return params.length ? ' WHERE' + params.join(' AND ') : '';
+    return params.length ? ' WHERE ' + params.join(' AND ') : '';
   }
 };
 
